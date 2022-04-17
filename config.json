@@ -5,6 +5,13 @@
             "mounts": {
                 "/tmp/b": "/tmp/a"
             }
+        },
+
+        "web2": {
+            "image": "nginx:latest",
+            "mounts": {
+                "/tmp/hehe": "/tmp/a"
+            }
         }
     }
 }

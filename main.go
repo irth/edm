@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"os"
+	"time"
 
 	"github.com/irth/edm/config"
 	"github.com/irth/edm/docker"
@@ -36,6 +37,10 @@ func main() {
 			}
 
 			json.NewEncoder(os.Stdout).Encode(cfg)
+
+			Up(ctx.Context, cli, cfg)
+			<-time.After(5 * time.Second)
+			Down(ctx.Context, cli, cfg)
 
 			return nil
 		},
