@@ -1,10 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"log"
 	"os"
-	"time"
 
+	"github.com/irth/edm/config"
 	"github.com/irth/edm/docker"
 
 	"github.com/pkg/errors"
@@ -22,26 +23,19 @@ func main() {
 			if err != nil {
 				return errors.Wrap(err, "creating docker client")
 			}
+			_ = cli
 
-			container := cli.Container(docker.ContainerOptions{
-				Name:  "test_container_1",
-				Image: "nginx:latest",
-				Mounts: []docker.Mount{
-					docker.BindMount{"/tmp/a", "/tmp/b"},
-				},
-			})
-
-			err = container.Up(ctx.Context)
+			f, err := os.Open("./config.json")
 			if err != nil {
-				return err
+				return errors.Wrap(err, "opening config")
+			}
+			defer f.Close()
+			cfg, err := config.Load(f, "hello")
+			if err != nil {
+				return errors.Wrap(err, "parsing config")
 			}
 
-			<-time.After(2 * time.Second)
-
-			err = container.Down(ctx.Context)
-			if err != nil {
-				return err
-			}
+			json.NewEncoder(os.Stdout).Encode(cfg)
 
 			return nil
 		},
