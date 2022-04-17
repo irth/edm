@@ -6,8 +6,9 @@ import (
 )
 
 type ContainerOptions struct {
-	Name  string
-	Image string
+	Name   string
+	Image  string
+	Mounts []Mount
 }
 
 type Container struct {
@@ -27,7 +28,7 @@ func (c Container) Up(ctx context.Context) error {
 		return err
 	}
 
-	id, err := c.cli.createContainer(ctx, c.Image, c.Name)
+	id, err := c.cli.createContainer(ctx, c.Image, c.Name, c.Mounts)
 	if err != nil {
 		return err
 	}

@@ -24,6 +24,9 @@ func main() {
 			container := cli.Container(ContainerOptions{
 				Name:  "test_container_1",
 				Image: "nginx:latest",
+				Mounts: []Mount{
+					BindMount{"/tmp/a", "/tmp/b"},
+				},
 			})
 
 			err = container.Up(ctx.Context)
@@ -31,7 +34,7 @@ func main() {
 				return err
 			}
 
-			<-time.After(5 * time.Second)
+			<-time.After(50 * time.Second)
 
 			err = container.Down(ctx.Context)
 			if err != nil {

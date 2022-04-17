@@ -8,6 +8,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 )
 
@@ -41,8 +42,31 @@ func (c *DockerClient) pullImage(ctx context.Context, image string) error {
 	return nil
 }
 
-func (c *DockerClient) createContainer(ctx context.Context, image string, name string) (string, error) {
-	hostConfig := container.HostConfig{}
+type Mount interface {
+	Mount() mount.Mount
+}
+
+type BindMount struct {
+	Host      string
+	Container string
+}
+
+func (b BindMount) Mount() mount.Mount {
+	return mount.Mount{
+		Type:   mount.TypeBind,
+		Source: b.Host,
+		Target: b.Container,
+	}
+}
+
+func (c *DockerClient) createContainer(ctx context.Context, image string, name string, mounts []Mount) (string, error) {
+	hostConfig := container.HostConfig{
+		Mounts: make([]mount.Mount, len(mounts)),
+	}
+	for i, m := range mounts {
+		hostConfig.Mounts[i] = m.Mount()
+	}
+
 	containerConfig := container.Config{
 		Image: image,
 	}
