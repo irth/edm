@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
@@ -32,6 +33,18 @@ func main() {
 			}
 
 			err = cli.StartContainer(ctx.Context, id)
+			if err != nil {
+				return err
+			}
+
+			<-time.After(5 * time.Second)
+
+			err = cli.StopContainer(ctx.Context, id, nil)
+			if err != nil {
+				return err
+			}
+
+			err = cli.RemoveContainer(ctx.Context, id)
 			if err != nil {
 				return err
 			}

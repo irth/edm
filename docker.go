@@ -4,11 +4,11 @@ import (
 	"context"
 	"io"
 	"os"
+	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/client"
-	"github.com/pkg/errors"
 )
 
 type DockerClient struct {
@@ -26,7 +26,7 @@ func NewDockerClient() (*DockerClient, error) {
 func (c *DockerClient) PullImage(ctx context.Context, image string) error {
 	reader, err := c.cli.ImagePull(ctx, image, types.ImagePullOptions{})
 	if err != nil {
-		return errors.Wrap(err, "pulling image")
+		return err
 	}
 	defer reader.Close()
 	io.Copy(os.Stdout, reader)
@@ -41,7 +41,7 @@ func (c *DockerClient) CreateContainer(ctx context.Context, image string) (strin
 
 	resp, err := c.cli.ContainerCreate(ctx, &containerConfig, &hostConfig, nil, nil, "")
 	if err != nil {
-		return "", errors.Wrap(err, "creating container")
+		return "", err
 	}
 
 	return resp.ID, nil
@@ -49,10 +49,14 @@ func (c *DockerClient) CreateContainer(ctx context.Context, image string) (strin
 
 func (c *DockerClient) StartContainer(ctx context.Context, containerID string) error {
 	startOptions := types.ContainerStartOptions{}
-	err := c.cli.ContainerStart(ctx, containerID, startOptions)
-	if err != nil {
-		return errors.Wrap(err, "starting container")
-	}
+	return c.cli.ContainerStart(ctx, containerID, startOptions)
+}
 
-	return nil
+func (c *DockerClient) StopContainer(ctx context.Context, containerID string, timeout *time.Duration) error {
+	return c.cli.ContainerStop(ctx, containerID, timeout)
+}
+
+func (c *DockerClient) RemoveContainer(ctx context.Context, containerID string) error {
+	removeOptions := types.ContainerRemoveOptions{}
+	return c.cli.ContainerRemove(ctx, containerID, removeOptions)
 }
