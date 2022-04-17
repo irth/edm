@@ -34,7 +34,7 @@ func main() {
 				return err
 			}
 
-			<-time.After(50 * time.Second)
+			<-time.After(5 * time.Second)
 
 			err = container.Down(ctx.Context)
 			if err != nil {
