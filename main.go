@@ -5,6 +5,8 @@ import (
 	"os"
 	"time"
 
+	"github.com/irth/edm/docker"
+
 	"github.com/pkg/errors"
 	"github.com/urfave/cli/v2"
 )
@@ -16,16 +18,16 @@ func main() {
 		Action: func(ctx *cli.Context) error {
 			log.Println("hello")
 
-			cli, err := NewDockerClient()
+			cli, err := docker.NewDockerClient()
 			if err != nil {
 				return errors.Wrap(err, "creating docker client")
 			}
 
-			container := cli.Container(ContainerOptions{
+			container := cli.Container(docker.ContainerOptions{
 				Name:  "test_container_1",
 				Image: "nginx:latest",
-				Mounts: []Mount{
-					BindMount{"/tmp/a", "/tmp/b"},
+				Mounts: []docker.Mount{
+					docker.BindMount{"/tmp/a", "/tmp/b"},
 				},
 			})
 
@@ -34,7 +36,7 @@ func main() {
 				return err
 			}
 
-			<-time.After(5 * time.Second)
+			<-time.After(2 * time.Second)
 
 			err = container.Down(ctx.Context)
 			if err != nil {
