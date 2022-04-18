@@ -26,5 +26,4 @@ func GetTemplateVariables(tmpl string) ([][]string, error) {
 	}
 
 	return vars, nil
-
 }
