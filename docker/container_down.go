@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/docker/docker/api/types"
+	"github.com/pkg/errors"
 )
 
 func (c Container) Down(ctx context.Context) error {
@@ -16,5 +17,16 @@ func (c Container) Down(ctx context.Context) error {
 		return err
 	}
 
-	return c.cli.ContainerRemove(ctx, c.Name, types.ContainerRemoveOptions{})
+	err = c.cli.ContainerRemove(ctx, c.Name, types.ContainerRemoveOptions{})
+	if err != nil {
+		return err
+	}
+
+	for _, m := range c.Mounts {
+		err = m.Dispose()
+		if err != nil {
+			return errors.Wrapf(err, "disposing mount %+v", m)
+		}
+	}
+	return nil
 }

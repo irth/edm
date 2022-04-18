@@ -7,6 +7,7 @@ import (
 type Mount interface {
 	Prepare() error
 	Mount() mount.Mount
+	Dispose() error
 }
 
 type BindMount struct {
@@ -15,6 +16,10 @@ type BindMount struct {
 }
 
 func (b BindMount) Prepare() error {
+	return nil
+}
+
+func (b BindMount) Dispose() error {
 	return nil
 }
 
