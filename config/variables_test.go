@@ -7,6 +7,40 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestVariablesGetFor(t *testing.T) {
+	{
+		vars := config.Variables{
+			"global": map[string]interface{}{
+				"a": 1,
+			},
+		}
+
+		v, err := vars.GetFor("service1", "container1", []string{"a"})
+		assert.NoError(t, err)
+		assert.Equal(t, 1, v)
+
+		vars["service1"] = map[string]interface{}{
+			"a": 2,
+		}
+		v, err = vars.GetFor("service1", "container1", []string{"a"})
+		assert.NoError(t, err)
+		assert.Equal(t, 2, v)
+
+		vars["service1"] = map[string]interface{}{
+			"a": 2,
+			"container1": map[string]interface{}{
+				"a": 3,
+			},
+		}
+		v, err = vars.GetFor("service1", "container1", []string{"a"})
+		assert.NoError(t, err)
+		assert.Equal(t, 3, v)
+
+		_, err = vars.GetFor("service1", "container1", []string{"wrong", "path"})
+		assert.IsType(t, config.LookupError{}, err)
+	}
+}
+
 func TestVariablesGet(t *testing.T) {
 	vars := config.Variables{
 		"a": map[string]interface{}{
@@ -37,4 +71,11 @@ func TestVariablesGet(t *testing.T) {
 		assert.NoError(t, err)
 		assert.Equal(t, tt.Expected, v)
 	}
+
+	_, err := vars.Get([]string{"wrong", "path"})
+	assert.IsType(t, config.LookupError{}, err)
+
+	self, err := vars.Get([]string{})
+	assert.NoError(t, err)
+	assert.Equal(t, map[string]interface{}(vars), self)
 }
