@@ -3,14 +3,20 @@
         "web": {
             "image": "nginx:latest",
             "mounts": {
-                "/tmp/b": "/tmp/a"
+                "/tmp/b": {
+                    "type": "bind",
+                    "source": "/tmp/a"
+                }
             }
         },
 
         "web2": {
             "image": "nginx:latest",
             "mounts": {
-                "/tmp/hehe": "/tmp/a"
+                "/tmp/hehe": {
+                    "type": "bind", 
+                    "source": "/tmp/a"
+                }
             }
         }
     }

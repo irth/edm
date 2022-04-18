@@ -11,7 +11,12 @@ import (
 
 type container struct {
 	Image  string `json:"image"`
-	Mounts map[string]string
+	Mounts map[string]mount
+}
+
+type mount struct {
+	Type   string `json:"type"`
+	Source string `json:"source"`
 }
 
 type config struct {
@@ -41,11 +46,19 @@ func Load(r io.Reader, name string) (*Config, error) {
 			Mounts: make([]docker.Mount, 0, len(spec.Mounts)),
 		}
 
-		for container, host := range spec.Mounts {
-			co.Mounts = append(co.Mounts, docker.BindMount{
-				Host:      host,
-				Container: container,
-			})
+		for container, mountSpec := range spec.Mounts {
+			var mount docker.Mount
+			switch mountSpec.Type {
+			case "bind":
+				mount = docker.BindMount{
+					Host:      mountSpec.Source,
+					Container: container,
+				}
+				// TODO: template mount
+			default:
+				return nil, fmt.Errorf("unknown mount type for %s: %s", container, mountSpec.Type)
+			}
+			co.Mounts = append(co.Mounts, mount)
 		}
 
 		config.Containers = append(config.Containers, co)
