@@ -10,8 +10,8 @@ import (
 )
 
 type container struct {
-	Image  string `json:"image"`
-	Mounts map[string]mount
+	Image  string           `json:"image"`
+	Mounts map[string]mount `json:"mounts"`
 }
 
 type mount struct {
