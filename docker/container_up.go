@@ -29,7 +29,12 @@ func (c Container) Up(ctx context.Context) error {
 		Mounts: make([]mount.Mount, len(c.Mounts)),
 	}
 	for i, m := range c.Mounts {
-		hostConfig.Mounts[i] = m.Mount()
+		err = m.Prepare()
+		mount := m.Mount()
+		if err != nil {
+			return errors.Wrapf(err, "error while preparing mount %s", mount.Target)
+		}
+		hostConfig.Mounts[i] = mount
 	}
 
 	containerConfig := container.Config{

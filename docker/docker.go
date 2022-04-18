@@ -1,7 +1,6 @@
 package docker
 
 import (
-	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/client"
 )
 
@@ -22,22 +21,5 @@ func (c *DockerClient) Container(opts ContainerOptions) Container {
 		ContainerOptions: opts,
 
 		cli: c.cli,
-	}
-}
-
-type Mount interface {
-	Mount() mount.Mount
-}
-
-type BindMount struct {
-	Host      string
-	Container string
-}
-
-func (b BindMount) Mount() mount.Mount {
-	return mount.Mount{
-		Type:   mount.TypeBind,
-		Source: b.Host,
-		Target: b.Container,
 	}
 }
